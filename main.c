@@ -233,8 +233,8 @@ int main(int argc, char *argv[])
         printf("Verwendung:\nChkWnd [[-r][-t][-i] <SuchText>]...\n"
             "    -r   ... regular Expression\n"
             "    -t   ... Text direkt\n"
-            "    -i   ... ignoriere Groﬂ-/Kleinschreibung\n"
-            "    -s   ... Fenster schlieﬂen\n"
+            "    -i   ... ignoriere Gro·-/Kleinschreibung\n"
+            "    -s   ... Fenster schlie·en\n"
             "    -vx  ... Fenster verstecken x=v/z\n"
             "    -k#  ... Sende Command #/IDOK\n"
             "%%ERRORLEVEL%% ist Anzahl Treffer\n");

@@ -5,6 +5,7 @@
 * Änderungen *                                     *
 ****************************************************
 * 19.04.2024 *  aN * .01 * Start mit ChkWnd
+* 20.04.2024 *  aN * .10 * Fenster bewegen
 * **************************************************/
 
 #include <windows.h>
@@ -19,7 +20,8 @@ enum Command
     Nix,
     Close,
     SendMsg,
-    ShwHid
+    ShwHid,
+    WndMove
 };
 
 //** Types ****************************************/
@@ -28,6 +30,7 @@ enum Command
 int StrInStr(char *sub, char *str);
 int RegEx(char *sub, char *str);
 int FindWindowText(char *suche);
+int WindowMove(HWND hwnd);
 int DoKommand(HWND hWnd, enum Command cmd);
 
 //** Variablen ************************************/
@@ -41,6 +44,8 @@ HWND selbst = NULL;
 int ignore_case = 0;
 int cmd_id = IDOK;
 int show_hide = SW_SHOW;
+int wndX;
+int wndY;
 int dummy = 0;
 char titel[500];
 
@@ -65,6 +70,20 @@ int RegEx(char *sub, char *str)
     return (res != -1);
 }
 
+
+/*
+Fenster bewegen
+*/
+int WindowMove(HWND hwnd)
+{
+    RECT r;
+    
+    GetWindowRect(hwnd, &r);
+    MoveWindow(hwnd,wndX,wndY,r.right-r.left,r.bottom-r.top,TRUE);
+    
+    return 0;
+}
+
 /*
 Kommando Ausführen
 */
@@ -80,7 +99,12 @@ int DoKommand(HWND hWnd, enum Command cmd)
         SendMessage(hWnd,WM_COMMAND, cmd_id, 0);
         break;
     case ShwHid:
+        // Show-Hide Fenster
         ShowWindow(hWnd, show_hide);
+        break;
+    case WndMove:
+        // Fenster bewegen
+        WindowMove(hWnd);
         break;
     default:
         //Nix
@@ -181,6 +205,13 @@ int main(int argc, char *argv[])
                 // close Window
                 CmD = Close;
                 break;
+            case 'm':
+                // Window bewegen
+                CmD = WndMove;
+                wndX = 100;
+                wndY = 100;
+                sscanf(&argv[i][2],"%d/%d",&wndX,&wndY);
+                break;
             case 'v':
             case 'h':
                 // Show/Hide 
@@ -237,6 +268,7 @@ int main(int argc, char *argv[])
             "    -s   ... Fenster schlieáen\n"
             "    -vx  ... Fenster verstecken x=v/z\n"
             "    -k#  ... Sende Command #/IDOK\n"
+            "    -m#/#... Fenster bewegen posX/PosY\n"
             "%%ERRORLEVEL%% ist Anzahl Treffer\n");
     }
 

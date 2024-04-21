@@ -44,6 +44,7 @@ HWND selbst = NULL;
 int ignore_case = 0;
 int cmd_id = IDOK;
 int show_hide = SW_SHOW;
+int show_class = 0;
 int wndX;
 int wndY;
 int dummy = 0;
@@ -92,11 +93,11 @@ int DoKommand(HWND hWnd, enum Command cmd)
     switch (cmd) {
     case Close:
         // Sende WM_CLOSE an das Fenster
-        SendMessage(hWnd,WM_CLOSE,0,0);
+        PostMessage(hWnd,WM_CLOSE,0,0);
         break;
     case SendMsg:
         // Sende WM_COMMAND, IDOK an das Fenster
-        SendMessage(hWnd,WM_COMMAND, cmd_id, 0);
+        PostMessage(hWnd,WM_COMMAND, cmd_id, 0);
         break;
     case ShwHid:
         // Show-Hide Fenster
@@ -120,6 +121,7 @@ int FindWindowText(char *txt)
 {
     HWND hwnd;
     int treffer = 0;
+    static char class[100];
     static char hStr[500];
     static char vg_suche[500];
     static char vg_titel[500];
@@ -149,9 +151,17 @@ int FindWindowText(char *txt)
         {
             if ((*compare)(vg_titel, vg_suche) != 0)
             {
-                printf("gefunden: %s\n", hStr);
+                GetClassName(hwnd, class, sizeof(class));
+                if(show_class != 0)
+                {
+                    printf("gefunden:(%s) %s\n",class,hStr);
+                }
+                else
+                {
+                    printf("gefunden: %s\n", hStr);                    
+                }
                 
-                DoKommand(hwnd, CmD);
+                DoKommand(hwnd, CmD);                
                 
                 treffer++;
             }
@@ -162,7 +172,9 @@ int FindWindowText(char *txt)
         }
         hwnd = GetWindow(hwnd,GW_HWNDNEXT);
     }
+    
     printf("Treffer: %d\n", treffer);
+    
     return treffer;
 }
 
@@ -243,6 +255,10 @@ int main(int argc, char *argv[])
                     cmd_id = atoi(&argv[i][2]);
                 }
                 break;
+            case 'q':
+                // Zeige Klasse
+                show_class = argv[i][2]!='-';
+                break;
             default:
                 //TODO
                 break;
@@ -261,7 +277,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        printf("Verwendung:\nChkWnd [[-r][-t][-i] <SuchText>]...\n"
+        printf("Verwendung:\nChkTls [[-r][-t][-i] <SuchText>]...\n"
             "    -r   ... regular Expression\n"
             "    -t   ... Text direkt\n"
             "    -i   ... ignoriere Groá-/Kleinschreibung\n"
@@ -269,6 +285,7 @@ int main(int argc, char *argv[])
             "    -vx  ... Fenster verstecken x=v/z\n"
             "    -k#  ... Sende Command #/IDOK\n"
             "    -m#/#... Fenster bewegen posX/PosY\n"
+            "    -q-  ... Fenster-Klasse anzeigen\n"
             "%%ERRORLEVEL%% ist Anzahl Treffer\n");
     }
 

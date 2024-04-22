@@ -209,34 +209,34 @@ int main(int argc, char *argv[])
                 wie = wie_r;
                 break;
             case 'i':
-                // ignore case
+                // ignore Groﬂ-/Kleinschreibung
                 ignore_case = 1;
                 break;
-            case 'c':
             case 's':
-                // close Window
+                // schlieﬂe Fenster
                 CmD = Close;
                 break;
             case 'm':
-                // Window bewegen
+                // Fenster bewegen
                 CmD = WndMove;
                 wndX = 100;
                 wndY = 100;
                 sscanf(&argv[i][2],"%d/%d",&wndX,&wndY);
                 break;
             case 'v':
-            case 'h':
                 // Show/Hide 
                 CmD = ShwHid;
                 if((argv[i][2]=='z')
-                || (argv[i][2]=='s'))
+                || (argv[i][2]=='s')
+                || (argv[i][2]=='+'))
                 {
                     //Zeigen/Show
                     show_hide = SW_SHOW;
                 }
                 else
                 if((argv[i][2]=='v')
-                || (argv[i][2]=='h'))
+                || (argv[i][2]=='h')
+                || (argv[i][2]=='-'))
                 {
                     //Verstecken/Hide
                     show_hide = SW_HIDE;
@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
                     cmd_id = atoi(&argv[i][2]);
                 }
                 break;
-            case 'q':
+            case 'c':
                 // Zeige Klasse
                 show_class = argv[i][2]!='-';
                 break;
@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        printf("Verwendung:\nChkTls [[-r][-t][-i] <SuchText>]...\n"
+        printf("Verwendung:\nChkTls [[-r][-t][-i][-k#][-m#/#][-c-] <SuchText>]...\n"
             "    -r   ... regular Expression\n"
             "    -t   ... Text direkt\n"
             "    -i   ... ignoriere Gro·-/Kleinschreibung\n"
@@ -285,7 +285,7 @@ int main(int argc, char *argv[])
             "    -vx  ... Fenster verstecken x=v/z\n"
             "    -k#  ... Sende Command #/IDOK\n"
             "    -m#/#... Fenster bewegen posX/PosY\n"
-            "    -q-  ... Fenster-Klasse anzeigen\n"
+            "    -c-  ... Fenster-Klasse anzeigen\n"
             "%%ERRORLEVEL%% ist Anzahl Treffer\n");
     }
 

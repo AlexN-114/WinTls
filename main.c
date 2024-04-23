@@ -6,6 +6,7 @@
 ****************************************************
 * 19.04.2024 *  aN * .01 * Start mit ChkWnd
 * 20.04.2024 *  aN * .10 * Fenster bewegen
+* 23.04.2024 *  aN * .14 * Fehlermeldung bei unbekannten Kommando
 * **************************************************/
 
 #include <windows.h>
@@ -158,10 +159,10 @@ int FindWindowText(char *txt)
                 }
                 else
                 {
-                    printf("gefunden: %s\n", hStr);                    
+                    printf("gefunden: %s\n", hStr);
                 }
                 
-                DoKommand(hwnd, CmD);                
+                DoKommand(hwnd, CmD);
                 
                 treffer++;
             }
@@ -185,7 +186,7 @@ int main(int argc, char *argv[])
     char *srch = NULL;
     int treffer_ges = 0;
    
-   compare = &StrInStr;   
+   compare = &StrInStr;
     
     GetConsoleTitle(titel, sizeof(titel));
 
@@ -196,7 +197,7 @@ int main(int argc, char *argv[])
     {
         if (argv[i][0]=='-')
         {
-            switch (argv[i][1]) 
+            switch (argv[i][1])
             {
             case 't':
                 // Text direct
@@ -224,7 +225,7 @@ int main(int argc, char *argv[])
                 sscanf(&argv[i][2],"%d/%d",&wndX,&wndY);
                 break;
             case 'v':
-                // Show/Hide 
+                // Show/Hide
                 CmD = ShwHid;
                 if((argv[i][2]=='z')
                 || (argv[i][2]=='s')
@@ -243,7 +244,7 @@ int main(int argc, char *argv[])
                 }
                 break;
             case 'k':
-                // Show/Hide 
+                // Show/Hide
                 CmD = SendMsg;
                 if(argv[i][2]==0)
                 {
@@ -260,7 +261,8 @@ int main(int argc, char *argv[])
                 show_class = argv[i][2]!='-';
                 break;
             default:
-                //TODO
+                // Fehlermeldung
+                printf("unbekanntes Kommando: '-%c'\n",argv[i][1]);
                 break;
             }
         }

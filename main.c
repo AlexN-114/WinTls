@@ -45,6 +45,7 @@ int ignore_case = 0;
 int cmd_id = IDOK;
 int show_hide = SW_SHOW;
 int show_class = 0;
+char strzchn = ' ';
 int wndX;
 int wndY;
 int dummy = 0;
@@ -194,7 +195,13 @@ int main(int argc, char *argv[])
     
     for(int i=1;i<argc;i++)
     {
-        if (argv[i][0]=='-')
+        if (strzchn == ' ' &&
+            ((argv[i][0]=='/') || (argv[i][0]=='-')))
+        {
+            strzchn = argv[i][0];
+        }
+        
+        if (argv[i][0]==strzchn)
         {
             switch (argv[i][1]) 
             {
@@ -229,14 +236,16 @@ int main(int argc, char *argv[])
                 // Show/Hide 
                 CmD = ShwHid;
                 if((argv[i][2]=='z')
-                || (argv[i][2]=='s'))
+                || (argv[i][2]=='s')
+                || (argv[i][2]=='+'))
                 {
                     //Zeigen/Show
                     show_hide = SW_SHOW;
                 }
                 else
                 if((argv[i][2]=='v')
-                || (argv[i][2]=='h'))
+                || (argv[i][2]=='h')
+                || (argv[i][2]=='-'))
                 {
                     //Verstecken/Hide
                     show_hide = SW_HIDE;

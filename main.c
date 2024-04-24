@@ -7,6 +7,8 @@
 * 19.04.2024 *  aN * .01 * Start mit ChkWnd
 * 20.04.2024 *  aN * .10 * Fenster bewegen
 * 23.04.2024 *  aN * .14 * Fehlermeldung bei unbekannten Kommando
+* 23.04.2024 *  aN * .16 * selbststellendes Steuerzeichen
+* 24.04.2024 *  aN * .17 * Hilfe in eigener Funktion
 * **************************************************/
 
 #include <windows.h>
@@ -33,6 +35,7 @@ int RegEx(char *sub, char *str);
 int FindWindowText(char *suche);
 int WindowMove(HWND hwnd);
 int DoKommand(HWND hWnd, enum Command cmd);
+void help(void);
 
 //** Variablen ************************************/
 int (*compare)(char *sub,char *str);
@@ -46,6 +49,7 @@ int ignore_case = 0;
 int cmd_id = IDOK;
 int show_hide = SW_SHOW;
 int show_class = 0;
+char strzchn = ' ';
 int wndX;
 int wndY;
 int dummy = 0;
@@ -54,7 +58,25 @@ char titel[500];
 //*************************************************/
 
 /*
- Suche String in String
+Hilfe
+*/
+void help()
+{
+    printf("Verwendung:\nChkTls [[-r][-t][-i][-k#][-m#/#][-c][-?] <SuchText>]...\n"
+        "    -r   ... regular Expression\n"
+        "    -t   ... Text direkt\n"
+        "    -i   ... ignoriere Groá-/Kleinschreibung\n"
+        "    -s   ... Fenster schlieáen\n"
+        "    -vx  ... Fenster verstecken x=v/z\n"
+        "    -k#  ... Sende Command #/IDOK\n"
+        "    -m#/#... Fenster bewegen posX/PosY\n"
+        "    -c[-]... Fenster-Klasse anzeigen\n"
+        "    -?   ... Hilfe\n"
+        "%%ERRORLEVEL%% ist Anzahl Treffer\n");    
+}
+
+/*
+Suche String in String
 */
 int StrInStr(char *sub, char *str)
 {
@@ -186,7 +208,7 @@ int main(int argc, char *argv[])
     char *srch = NULL;
     int treffer_ges = 0;
    
-   compare = &StrInStr;
+    compare = &StrInStr;
     
     GetConsoleTitle(titel, sizeof(titel));
 
@@ -195,7 +217,13 @@ int main(int argc, char *argv[])
     
     for(int i=1;i<argc;i++)
     {
-        if (argv[i][0]=='-')
+        if (strzchn == ' ' &&
+            ((argv[i][0]=='/') || (argv[i][0]=='-')))
+        {
+            strzchn = argv[i][0];
+        }
+        
+        if (argv[i][0]==strzchn)
         {
             switch (argv[i][1])
             {
@@ -260,6 +288,10 @@ int main(int argc, char *argv[])
                 // Zeige Klasse
                 show_class = argv[i][2]!='-';
                 break;
+            case '?':
+                // Hilfe
+                help();
+                break;
             default:
                 // Fehlermeldung
                 printf("unbekanntes Kommando: '-%c'\n",argv[i][1]);
@@ -279,16 +311,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        printf("Verwendung:\nChkTls [[-r][-t][-i][-k#][-m#/#][-c-] <SuchText>]...\n"
-            "    -r   ... regular Expression\n"
-            "    -t   ... Text direkt\n"
-            "    -i   ... ignoriere Groá-/Kleinschreibung\n"
-            "    -s   ... Fenster schlieáen\n"
-            "    -vx  ... Fenster verstecken x=v/z\n"
-            "    -k#  ... Sende Command #/IDOK\n"
-            "    -m#/#... Fenster bewegen posX/PosY\n"
-            "    -c-  ... Fenster-Klasse anzeigen\n"
-            "%%ERRORLEVEL%% ist Anzahl Treffer\n");
+        help();
     }
 
     SetConsoleTitle(titel);

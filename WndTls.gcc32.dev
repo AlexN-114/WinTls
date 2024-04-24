@@ -32,9 +32,9 @@ Folders =
 IncludeVersionInfo = 1
 SupportXPThemes = 0
 CompilerSet = 0
-StaticLink = 1
+StaticLink = 0
 AddCharset = 1
-ExecEncoding = SYSTEM
+ExecEncoding = windows-1250
 Encoding = windows-1250
 ModelType = 0
 ClassBrowserType = 0
@@ -44,7 +44,7 @@ UseUTF8 = 0
 
 
 [Unit1]
-FileName = ../tiny-regex-c/re.c
+FileName = main.c
 CompileCpp = 0
 Folder = Sources
 Compile = 1
@@ -60,24 +60,24 @@ RealEncoding = ASCII
 Major = 1
 Minor = 0
 Release = 0
-Build = 14
+Build = 17
 LanguageID = 3079
 CharsetID = 1252
 CompanyName = //-\\. //\\//. - Software
-FileVersion = 1.0.0.14
+FileVersion = 1.0.0.17
 FileDescription = Developed using the Red Panda C++ IDE
 InternalName = 
 LegalCopyright = Alexander NEUMEISTER ® 2024
 LegalTrademarks = 
 OriginalFilename = WndTls.exe
 ProductName = Window Tools
-ProductVersion = 1.0.0.14
+ProductVersion = 1.0.0.17
 AutoIncBuildNr = 0
 SyncProduct = 1
 
 
 [Unit2]
-FileName = main.c
+FileName = ../tiny-regex-c/re.c
 CompileCpp = 0
 Folder = Sources
 Compile = 1

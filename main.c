@@ -9,6 +9,7 @@
 * 23.04.2024 *  aN * .14 * Fehlermeldung bei unbekannten Kommando
 * 23.04.2024 *  aN * .16 * selbststellendes Steuerzeichen
 * 24.04.2024 *  aN * .17 * Hilfe in eigener Funktion
+* 24.04.2024 *  aN * .18 * selbstanpassender Hilfetext
 * **************************************************/
 
 #include <windows.h>
@@ -62,17 +63,31 @@ Hilfe
 */
 void help()
 {
-    printf("Verwendung:\nChkTls [[-r][-t][-i][-k#][-m#/#][-c][-?] <SuchText>]...\n"
-        "    -r   ... regular Expression\n"
-        "    -t   ... Text direkt\n"
-        "    -i   ... ignoriere Groá-/Kleinschreibung\n"
-        "    -s   ... Fenster schlieáen\n"
-        "    -vx  ... Fenster verstecken x=v/z\n"
-        "    -k#  ... Sende Command #/IDOK\n"
-        "    -m#/#... Fenster bewegen posX/PosY\n"
-        "    -c[-]... Fenster-Klasse anzeigen\n"
-        "    -?   ... Hilfe\n"
-        "%%ERRORLEVEL%% ist Anzahl Treffer\n");    
+    static char text[] =
+    "Verwendung:\nWndTls [[-r][-t][-i][-k#][-m#/#][-c][-?] <SuchText>]...\n"
+    "    -r   ... regular Expression\n"
+    "    -t   ... Text direkt\n"
+    "    -i   ... ignoriere Groá-/Kleinschreibung\n"
+    "    -s   ... Fenster schlieáen\n"
+    "    -vx  ... Fenster verstecken x=v/z\n"
+    "    -k#  ... Sende Command #/IDOK\n"
+    "    -m#/#... Fenster bewegen posX/PosY\n"
+    "    -c-  ... Fenster-Klasse anzeigen\n"
+    "    -?   ... Hilfe\n"
+    "%%ERRORLEVEL%% ist Anzahl Treffer\n";
+    
+    if('/'==strzchn)
+    {
+        for(int i=1;text[i]!=0;i++)
+        {
+            if('-'==text[i])
+            {
+                text[i] = (' '==text[i-1]) ? '/' : text[i];
+                text[i] = ('['==text[i-1]) ? '/' : text[i];
+            }
+        }
+    }
+    printf(text);    
 }
 
 /*
@@ -203,11 +218,12 @@ int FindWindowText(char *txt)
 
 int main(int argc, char *argv[])
 {
-    selbst = GetWindow(GetConsoleWindow(),GW_OWNER);
     char titel[350];
     char *srch = NULL;
     int treffer_ges = 0;
    
+    selbst = GetWindow(GetConsoleWindow(),GW_OWNER);
+
     compare = &StrInStr;
     
     GetConsoleTitle(titel, sizeof(titel));
@@ -291,6 +307,7 @@ int main(int argc, char *argv[])
             case '?':
                 // Hilfe
                 help();
+                srch = (char*)1;
                 break;
             default:
                 // Fehlermeldung

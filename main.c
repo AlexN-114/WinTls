@@ -20,14 +20,17 @@
 #include "..\\tiny-regex-c\\re.h"
 
 //** Enum *****************************************/
-enum Command
+typedef enum Key {xNK, xSHIFT, xCTRL, xALT} xKey ;
+
+typedef enum Command
 {
     Nix,
     Close,
     SendMsg,
     ShwHid,
-    WndMove
-};
+    WndMove,
+    Nachricht
+} eCommand;
 
 //** Types ****************************************/
 
@@ -40,13 +43,14 @@ int DoKommand(HWND hWnd, enum Command cmd);
 void help(void);
 
 //** Variablen ************************************/
-int (*compare)(char *sub,char *str);
+int (*compare)(char *sub, char *str);
 char wie_t[] = "text";
 char wie_r[] = "regex";
 char *wie = wie_t;
-enum Command CmD=Nix;
+enum Command CmD = Nix;
 char suchtit[] = "~S~e~a~r~c~h~";
 char *action = "Suche";
+char *nachricht_txt;
 HWND selbst = NULL;
 int ignore_case = 0;
 int cmd_id = IDOK;
@@ -60,54 +64,51 @@ char titel[500];
 
 //*************************************************/
 
-/*
-Hilfe
+/* Hilfe
 */
-void help()
+void help(void)
 {
     static int showwn = 0;
     static char text[] =
-    "Verwendung:\nWndTls [[-r][-t][-i][-k#][-m#/#][-c][-?] <SuchText>]...\n"
-    "    -r   ... regular Expression\n"
-    "    -t   ... Text direkt\n"
-    "    -i   ... ignoriere Groá-/Kleinschreibung\n"
-    "    -s   ... Fenster schlieáen\n"
-    "    -vx  ... Fenster verstecken x=v/z\n"
-    "    -k#  ... Sende Command #/IDOK\n"
-    "    -m#/#... Fenster bewegen posX/PosY\n"
-    "    -c-  ... Fenster-Klasse anzeigen\n"
-    "    -?   ... Hilfe\n"
-    "%%ERRORLEVEL%% ist Anzahl Treffer\n";
-    
-    if('/'==strzchn)
+        "Verwendung:\nWndTls [[-r][-t][-i][-k#][-m#/#][-c][-?] <SuchText>]...\n"
+        "    -r   ... regular Expression\n"
+        "    -t   ... Text direkt\n"
+        "    -i   ... ignoriere Groá-/Kleinschreibung\n"
+        "    -s   ... Fenster schlieáen\n"
+        "    -vx  ... Fenster verstecken x=v/z\n"
+        "    -k#  ... Sende Command #/IDOK\n"
+        "    -m#/#... Fenster bewegen posX/PosY\n"
+        "    -c-  ... Fenster-Klasse anzeigen\n"
+        "    -?   ... Hilfe\n"
+        "%%ERRORLEVEL%% ist Anzahl Treffer\n";
+
+    if ('/' == strzchn)
     {
-        for(int i=1;text[i]!=0;i++)
+        for (int i = 1; text[i] != 0; i++)
         {
-            if('-'==text[i])
+            if ('-' == text[i])
             {
-                text[i] = (' '==text[i-1]) ? '/' : text[i];
-                text[i] = ('['==text[i-1]) ? '/' : text[i];
+                text[i] = (' ' == text[i - 1]) ? '/' : text[i];
+                text[i] = ('[' == text[i - 1]) ? '/' : text[i];
             }
         }
     }
-    if(0 == showwn)
+    if (0 == showwn)
     {
         showwn = 1;
-        printf("%s",text);
+        printf("%s", text);
     }
 }
 
-/*
-Suche String in String
+/* Suche String in String
 */
 int StrInStr(char *sub, char *str)
 {
-    char *pos = strstr(sub,str);
+    char *pos = strstr(sub, str);
     return (pos != NULL);
 }
 
-/*
- regular expression
+/* regular expression
 */
 int RegEx(char *sub, char *str)
 {
@@ -117,44 +118,134 @@ int RegEx(char *sub, char *str)
 }
 
 
-/*
-Fenster bewegen
+/* Tastensimulation in anderen Anwendungen
+*/
+void SendKey(HWND hWnd, int iItem, char key, xKey xK)
+{
+    HWND hOldWnd;
+
+    hOldWnd = GetForegroundWindow();
+    SetForegroundWindow(hWnd);
+    PostMessage(hWnd, WM_SETFOCUS, iItem, 0);
+    switch (xK)
+    {
+        case xSHIFT:
+            keybd_event(VK_SHIFT, 0, 0, 0);
+            break;
+        case xCTRL:
+            keybd_event(VK_CONTROL, 0, 0, 0);
+            break;
+        case xALT:
+            keybd_event(VK_MENU, 0, 0, 0);
+            break;
+        default:
+            break;
+    }
+
+    if ((key >= 'A') && (key <= 'Z'))
+    {
+        if (xK != xSHIFT)
+        {
+            keybd_event(VK_SHIFT, 0, 0, 0);
+        }
+        keybd_event(key, 0, 0, 0);
+        keybd_event(key, 0, KEYEVENTF_KEYUP, 0);
+        if (xK != xSHIFT)
+        {
+            keybd_event(VK_SHIFT, 0, KEYEVENTF_KEYUP, 0);
+        }
+    }
+    else if ((key >= 'a') && (key <= 'z'))
+    {
+        key -= 'a' - 'A';
+        keybd_event(key, 0, 0, 0);
+        keybd_event(key, 0, KEYEVENTF_KEYUP, 0);
+    }
+    else
+    {
+        keybd_event(key, 0, 0, 0);
+        keybd_event(key, 0, KEYEVENTF_KEYUP, 0);
+    }
+
+    switch (xK)
+    {
+        case xSHIFT:
+            keybd_event(VK_SHIFT, 0, KEYEVENTF_KEYUP, 0);
+            break;
+        case xCTRL:
+            keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, 0);
+            break;
+        case xALT:
+            keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
+            break;
+        default:
+            break;
+    }
+
+    SetForegroundWindow(hOldWnd);
+}
+
+/* Sende Nachricht
+*/
+void nachricht(HWND hWnd, char *text)
+{
+    int i;
+
+    for (i = 0; text[i] == 0; i++)
+    {
+        char c = text[i];
+        if ((c >= 'A') && (c <= 'Z'))
+        {
+            SendKey(hWnd, 0, c, xSHIFT);
+        }
+        else if ((c >= 'a') && (c <= 'z'))
+        {
+            SendKey(hWnd, 0, c, xNK);
+        }
+        else
+        {
+            SendKey(hWnd, 0, c, 0);
+        }
+    }
+}
+
+/* Fenster bewegen
 */
 int WindowMove(HWND hwnd)
 {
     RECT r;
-    
+
     GetWindowRect(hwnd, &r);
-    MoveWindow(hwnd,wndX,wndY,r.right-r.left,r.bottom-r.top,TRUE);
-    
+    MoveWindow(hwnd, wndX, wndY, r.right - r.left, r.bottom - r.top, TRUE);
+
     return 0;
 }
 
-/*
-Kommando Ausführen
+/* Kommando Ausführen
 */
 int DoKommand(HWND hWnd, enum Command cmd)
 {
-    switch (cmd) {
-    case Close:
-        // Sende WM_CLOSE an das Fenster
-        PostMessage(hWnd,WM_CLOSE,0,0);
-        break;
-    case SendMsg:
-        // Sende WM_COMMAND, IDOK an das Fenster
-        PostMessage(hWnd,WM_COMMAND, cmd_id, 0);
-        break;
-    case ShwHid:
-        // Show-Hide Fenster
-        ShowWindow(hWnd, show_hide);
-        break;
-    case WndMove:
-        // Fenster bewegen
-        WindowMove(hWnd);
-        break;
-    default:
-        //Nix
-        break;
+    switch (cmd)
+    {
+        case Close:
+            // Sende WM_CLOSE an das Fenster
+            PostMessage(hWnd, WM_CLOSE, 0, 0);
+            break;
+        case SendMsg:
+            // Sende WM_COMMAND, IDOK an das Fenster
+            PostMessage(hWnd, WM_COMMAND, cmd_id, 0);
+            break;
+        case ShwHid:
+            // Show-Hide Fenster
+            ShowWindow(hWnd, show_hide);
+            break;
+        case WndMove:
+            // Fenster bewegen
+            WindowMove(hWnd);
+            break;
+        default:
+            //Nix
+            break;
     }
     return 0;
 }
@@ -170,24 +261,24 @@ int FindWindowText(char *txt)
     static char hStr[500];
     static char vg_suche[500];
     static char vg_titel[500];
-    
-    printf("%s (%s): %s\n",action,wie,txt);
-    
+
+    printf("%s (%s): %s\n", action, wie, txt);
+
     strcpy(vg_suche, txt);
-    if(ignore_case)
+    if (ignore_case)
     {
         _strlwr(vg_suche);
     }
 
     hwnd = FindWindow(NULL, NULL);
 
-    while(hwnd != NULL)
+    while (hwnd != NULL)
     {
         // - Fenster auswerten
         GetWindowText(hwnd, hStr, sizeof(hStr));
-        
+
         strcpy(vg_titel, hStr);
-        if(ignore_case)
+        if (ignore_case)
         {
             _strlwr(vg_titel);
         }
@@ -197,17 +288,17 @@ int FindWindowText(char *txt)
             if ((*compare)(vg_titel, vg_suche) != 0)
             {
                 GetClassName(hwnd, class, sizeof(class));
-                if(show_class != 0)
+                if (show_class != 0)
                 {
-                    printf("gefunden:(%s) %s\n",class,hStr);
+                    printf("gefunden:(%s) %s\n", class, hStr);
                 }
                 else
                 {
                     printf("gefunden: %s\n", hStr);
                 }
-                
+
                 DoKommand(hwnd, CmD);
-                
+
                 treffer++;
             }
         }
@@ -215,11 +306,11 @@ int FindWindowText(char *txt)
         {
             // printf("geigenes Fenster: %s\n", hStr);
         }
-        hwnd = GetWindow(hwnd,GW_HWNDNEXT);
+        hwnd = GetWindow(hwnd, GW_HWNDNEXT);
     }
-    
+
     printf("Treffer: %d\n", treffer);
-    
+
     return treffer;
 }
 
@@ -228,109 +319,122 @@ int main(int argc, char *argv[])
     char titel[350];
     char *srch = NULL;
     int treffer_ges = 0;
-   
-    selbst = GetWindow(GetConsoleWindow(),GW_OWNER);
+
+    selbst = GetWindow(GetConsoleWindow(), GW_OWNER);
 
     compare = &StrInStr;
-    
+
     GetConsoleTitle(titel, sizeof(titel));
 
     SetConsoleTitle(suchtit);
     Sleep(100);
-    
-    for(int i=1;i<argc;i++)
+
+    for (int i = 1; i < argc; i++)
     {
         if (strzchn == ' ' &&
-            ((argv[i][0]=='/') || (argv[i][0]=='-')))
+            ((argv[i][0] == '/') || (argv[i][0] == '-')))
         {
             strzchn = argv[i][0];
         }
-        
-        if (argv[i][0]==strzchn)
+
+        if (argv[i][0] == strzchn)
         {
             switch (argv[i][1])
             {
-            case 't':
-                // Text direct
-                compare = &StrInStr;
-                wie = wie_t;
-                break;
-            case 'r':
-                // regular expression
-                compare = &RegEx;
-                wie = wie_r;
-                break;
-            case 'i':
-                // ignore Groß-/Kleinschreibung
-                if('-' == argv[i][2])
-                {
-                    ignore_case = 0;
-                }
-                else
-                {
-                    ignore_case = 1;
-                }
-                break;
-            case 's':
-                // schließe Fenster
-                action = "Schlieáe";
-                CmD = Close;
-                break;
-            case 'm':
-                // Fenster bewegen
-                action = "Verschiebe";
-                CmD = WndMove;
-                wndX = 100;
-                wndY = 100;
-                sscanf(&argv[i][2],"%d/%d",&wndX,&wndY);
-                break;
-            case 'v':
-                // Show/Hide
-                action = "Verstecke";
-                CmD = ShwHid;
-                if((argv[i][2]=='z')
-                || (argv[i][2]=='s')
-                || (argv[i][2]=='+'))
-                {
-                    //Zeigen/Show
-                    show_hide = SW_SHOW;
-                }
-                else
-                if((argv[i][2]=='v')
-                || (argv[i][2]=='h')
-                || (argv[i][2]=='-'))
-                {
-                    //Verstecken/Hide
-                    show_hide = SW_HIDE;
-                }
-                break;
-            case 'k':
-                // Show/Hide
-                action = "Sende Msg";
-                CmD = SendMsg;
-                if(argv[i][2]==0)
-                {
-                    //Zeigen/Show
-                    cmd_id = IDOK;
-                }
-                else
-                {
-                    cmd_id = atoi(&argv[i][2]);
-                }
-                break;
-            case 'c':
-                // Zeige Klasse
-                show_class = argv[i][2]!='-';
-                break;
-            case '?':
-                // Hilfe
-                help();
-                srch = (char*)1;
-                break;
-            default:
-                // Fehlermeldung
-                printf("unbekanntes Kommando: '-%c'\n",argv[i][1]);
-                break;
+                case 't':
+                    // Text direct
+                    compare = &StrInStr;
+                    wie = wie_t;
+                    break;
+                case 'r':
+                    // regular expression
+                    compare = &RegEx;
+                    wie = wie_r;
+                    break;
+                case 'i':
+                    // ignore Groß-/Kleinschreibung
+                    if ('-' == argv[i][2])
+                    {
+                        ignore_case = 0;
+                    }
+                    else
+                    {
+                        ignore_case = 1;
+                    }
+                    break;
+                case 's':
+                    // schließe Fenster
+                    action = "Schlieáe";
+                    CmD = Close;
+                    break;
+                case 'm':
+                    // Fenster bewegen
+                    action = "Verschiebe";
+                    CmD = WndMove;
+                    wndX = 100;
+                    wndY = 100;
+                    sscanf(&argv[i][2], "%d/%d", &wndX, &wndY);
+                    break;
+                case 'n':
+                    // Nachricht senden
+                    action = "Nachricht";
+                    CmD = Nachricht;
+                    if(argv[i][2]==0)
+                    {
+                        nachricht_txt = &argv[i][2];
+                    }
+                    else
+                    {
+                        i++;
+                        nachricht_txt = argv[i];                        
+                    }
+                    break;
+                case 'v':
+                    // Show/Hide
+                    action = "Verstecke";
+                    CmD = ShwHid;
+                    if ((argv[i][2] == 'z')
+                        || (argv[i][2] == 's')
+                        || (argv[i][2] == '+'))
+                    {
+                        //Zeigen/Show
+                        show_hide = SW_SHOW;
+                    }
+                    else if ((argv[i][2] == 'v')
+                             || (argv[i][2] == 'h')
+                             || (argv[i][2] == '-'))
+                    {
+                        //Verstecken/Hide
+                        show_hide = SW_HIDE;
+                    }
+                    break;
+                case 'k':
+                    // Show/Hide
+                    action = "Sende Msg";
+                    CmD = SendMsg;
+                    if (argv[i][2] == 0)
+                    {
+                        //Zeigen/Show
+                        cmd_id = IDOK;
+                    }
+                    else
+                    {
+                        cmd_id = atoi(&argv[i][2]);
+                    }
+                    break;
+                case 'c':
+                    // Zeige Klasse
+                    show_class = argv[i][2] != '-';
+                    break;
+                case '?':
+                    // Hilfe
+                    help();
+                    srch = (char*)1;
+                    break;
+                default:
+                    // Fehlermeldung
+                    printf("unbekanntes Kommando: '-%c'\n", argv[i][1]);
+                    break;
             }
         }
         else

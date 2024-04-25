@@ -10,6 +10,7 @@
 * 23.04.2024 *  aN * .16 * selbststellendes Steuerzeichen
 * 24.04.2024 *  aN * .17 * Hilfe in eigener Funktion
 * 24.04.2024 *  aN * .18 * selbstanpassender Hilfetext
+* 25.04.2024 *  aN * .19 * Action angeseigt
 * **************************************************/
 
 #include <windows.h>
@@ -45,6 +46,7 @@ char wie_r[] = "regex";
 char *wie = wie_t;
 enum Command CmD=Nix;
 char suchtit[] = "~S~e~a~r~c~h~";
+char *action = "Suche";
 HWND selbst = NULL;
 int ignore_case = 0;
 int cmd_id = IDOK;
@@ -63,6 +65,7 @@ Hilfe
 */
 void help()
 {
+    static int showwn = 0;
     static char text[] =
     "Verwendung:\nWndTls [[-r][-t][-i][-k#][-m#/#][-c][-?] <SuchText>]...\n"
     "    -r   ... regular Expression\n"
@@ -87,7 +90,11 @@ void help()
             }
         }
     }
-    printf(text);    
+    if(0 == showwn)
+    {
+        showwn = 1;
+        printf("%s",text);
+    }
 }
 
 /*
@@ -164,7 +171,7 @@ int FindWindowText(char *txt)
     static char vg_suche[500];
     static char vg_titel[500];
     
-    printf("Suche (%s): %s\n",wie,txt);
+    printf("%s (%s): %s\n",action,wie,txt);
     
     strcpy(vg_suche, txt);
     if(ignore_case)
@@ -255,14 +262,23 @@ int main(int argc, char *argv[])
                 break;
             case 'i':
                 // ignore Groﬂ-/Kleinschreibung
-                ignore_case = 1;
+                if('-' == argv[i][2])
+                {
+                    ignore_case = 0;
+                }
+                else
+                {
+                    ignore_case = 1;
+                }
                 break;
             case 's':
                 // schlieﬂe Fenster
+                action = "Schlie·e";
                 CmD = Close;
                 break;
             case 'm':
                 // Fenster bewegen
+                action = "Verschiebe";
                 CmD = WndMove;
                 wndX = 100;
                 wndY = 100;
@@ -270,6 +286,7 @@ int main(int argc, char *argv[])
                 break;
             case 'v':
                 // Show/Hide
+                action = "Verstecke";
                 CmD = ShwHid;
                 if((argv[i][2]=='z')
                 || (argv[i][2]=='s')
@@ -289,6 +306,7 @@ int main(int argc, char *argv[])
                 break;
             case 'k':
                 // Show/Hide
+                action = "Sende Msg";
                 CmD = SendMsg;
                 if(argv[i][2]==0)
                 {

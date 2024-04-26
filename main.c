@@ -28,8 +28,7 @@ typedef enum Command
     Close,
     SendMsg,
     ShwHid,
-    WndMove,
-    Nachricht
+    WndMove
 } eCommand;
 
 //** Types ****************************************/
@@ -115,98 +114,6 @@ int RegEx(char *sub, char *str)
     int l;
     int res = re_match(str, sub, &l);
     return (res != -1);
-}
-
-
-/* Tastensimulation in anderen Anwendungen
-*/
-void SendKey(HWND hWnd, int iItem, char key, xKey xK)
-{
-    HWND hOldWnd;
-
-    hOldWnd = GetForegroundWindow();
-    SetForegroundWindow(hWnd);
-    PostMessage(hWnd, WM_SETFOCUS, iItem, 0);
-    switch (xK)
-    {
-        case xSHIFT:
-            keybd_event(VK_SHIFT, 0, 0, 0);
-            break;
-        case xCTRL:
-            keybd_event(VK_CONTROL, 0, 0, 0);
-            break;
-        case xALT:
-            keybd_event(VK_MENU, 0, 0, 0);
-            break;
-        default:
-            break;
-    }
-
-    if ((key >= 'A') && (key <= 'Z'))
-    {
-        if (xK != xSHIFT)
-        {
-            keybd_event(VK_SHIFT, 0, 0, 0);
-        }
-        keybd_event(key, 0, 0, 0);
-        keybd_event(key, 0, KEYEVENTF_KEYUP, 0);
-        if (xK != xSHIFT)
-        {
-            keybd_event(VK_SHIFT, 0, KEYEVENTF_KEYUP, 0);
-        }
-    }
-    else if ((key >= 'a') && (key <= 'z'))
-    {
-        key -= 'a' - 'A';
-        keybd_event(key, 0, 0, 0);
-        keybd_event(key, 0, KEYEVENTF_KEYUP, 0);
-    }
-    else
-    {
-        keybd_event(key, 0, 0, 0);
-        keybd_event(key, 0, KEYEVENTF_KEYUP, 0);
-    }
-
-    switch (xK)
-    {
-        case xSHIFT:
-            keybd_event(VK_SHIFT, 0, KEYEVENTF_KEYUP, 0);
-            break;
-        case xCTRL:
-            keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, 0);
-            break;
-        case xALT:
-            keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
-            break;
-        default:
-            break;
-    }
-
-    SetForegroundWindow(hOldWnd);
-}
-
-/* Sende Nachricht
-*/
-void nachricht(HWND hWnd, char *text)
-{
-    int i;
-
-    for (i = 0; text[i] == 0; i++)
-    {
-        char c = text[i];
-        if ((c >= 'A') && (c <= 'Z'))
-        {
-            SendKey(hWnd, 0, c, xSHIFT);
-        }
-        else if ((c >= 'a') && (c <= 'z'))
-        {
-            SendKey(hWnd, 0, c, xNK);
-        }
-        else
-        {
-            SendKey(hWnd, 0, c, 0);
-        }
-    }
 }
 
 /* Fenster bewegen
@@ -374,20 +281,6 @@ int main(int argc, char *argv[])
                     wndX = 100;
                     wndY = 100;
                     sscanf(&argv[i][2], "%d/%d", &wndX, &wndY);
-                    break;
-                case 'n':
-                    // Nachricht senden
-                    action = "Nachricht";
-                    CmD = Nachricht;
-                    if(argv[i][2]==0)
-                    {
-                        nachricht_txt = &argv[i][2];
-                    }
-                    else
-                    {
-                        i++;
-                        nachricht_txt = argv[i];                        
-                    }
                     break;
                 case 'v':
                     // Show/Hide

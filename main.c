@@ -1,17 +1,18 @@
 /***************************************************
-*  Programm zum Senden von IDOK an alle Fenster,   *
-*  die einen angegebenen Text entalten             *
-****************************************************
-* ƒnderungen *                                     *
-****************************************************
-* 19.04.2024 *  aN * .01 * Start mit ChkWnd
-* 20.04.2024 *  aN * .10 * Fenster bewegen
-* 23.04.2024 *  aN * .14 * Fehlermeldung bei unbekannten Kommando
-* 23.04.2024 *  aN * .16 * selbststellendes Steuerzeichen
-* 24.04.2024 *  aN * .17 * Hilfe in eigener Funktion
-* 24.04.2024 *  aN * .18 * selbstanpassender Hilfetext
-* 25.04.2024 *  aN * .19 * Action angeseigt
-* **************************************************/
+ *  Programm zum Senden von IDOK an alle Fenster,   *
+ *  die einen angegebenen Text entalten             *
+ ****************************************************
+ * ƒnderungen *                                     *
+ ****************************************************
+ * 19.04.2024 *  aN * .01 * Start mit ChkWnd
+ * 20.04.2024 *  aN * .10 * Fenster bewegen
+ * 23.04.2024 *  aN * .14 * Fehlermeldung bei unbekannten Kommando
+ * 23.04.2024 *  aN * .16 * selbststellendes Steuerzeichen
+ * 24.04.2024 *  aN * .17 * Hilfe in eigener Funktion
+ * 24.04.2024 *  aN * .18 * selbstanpassender Hilfetext
+ * 25.04.2024 *  aN * .19 * Action angeseigt
+ * 29.04.2024 *  aN * .21 * TopMost_Level setzen/r¸cksetzen
+ ****************************************************/
 
 #include <windows.h>
 #include <stdio.h>
@@ -28,7 +29,8 @@ typedef enum Command
     Close,
     SendMsg,
     ShwHid,
-    WndMove
+    WndMove,
+    TopMost
 } eCommand;
 
 //** Types ****************************************/
@@ -55,6 +57,7 @@ int ignore_case = 0;
 int cmd_id = IDOK;
 int show_hide = SW_SHOW;
 int show_class = 0;
+int tm_level = 1;
 char strzchn = ' ';
 int wndX;
 int wndY;
@@ -77,6 +80,7 @@ void help(void)
         "    -vx  ... Fenster verstecken x=v/z\n"
         "    -k#  ... Sende Command #/IDOK\n"
         "    -m#/#... Fenster bewegen posX/PosY\n"
+        "    -l-  ... Fenster TopMost Level setzen/rÅcksetzen\n"
         "    -c-  ... Fenster-Klasse anzeigen\n"
         "    -?   ... Hilfe\n"
         "%%ERRORLEVEL%% ist Anzahl Treffer\n";
@@ -116,6 +120,20 @@ int RegEx(char *sub, char *str)
     return (res != -1);
 }
 
+/* Setze Fenster Top-Most-Status
+*/
+void SetTop(HWND hWnd, int top)
+{
+    if (0 != top)
+    {
+        SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+    }
+    else
+    {
+        SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+    }
+}
+
 /* Fenster bewegen
 */
 int WindowMove(HWND hwnd)
@@ -149,6 +167,10 @@ int DoKommand(HWND hWnd, enum Command cmd)
         case WndMove:
             // Fenster bewegen
             WindowMove(hWnd);
+            break;
+        case TopMost:
+            // Fenster TopMost Level
+            SetTop(hWnd, tm_level);
             break;
         default:
             //Nix
@@ -260,14 +282,7 @@ int main(int argc, char *argv[])
                     break;
                 case 'i':
                     // ignore Groﬂ-/Kleinschreibung
-                    if ('-' == argv[i][2])
-                    {
-                        ignore_case = 0;
-                    }
-                    else
-                    {
-                        ignore_case = 1;
-                    }
+                    ignore_case = argv[i][2] != '-';
                     break;
                 case 's':
                     // schlieﬂe Fenster
@@ -318,6 +333,12 @@ int main(int argc, char *argv[])
                 case 'c':
                     // Zeige Klasse
                     show_class = argv[i][2] != '-';
+                    break;
+                case 'l':
+                    // TopMost Level
+                    tm_level = argv[i][2] != '-';
+                    action = "reset TopMost";
+                    action = (tm_level) ? &action[2] : action;
                     break;
                 case '?':
                     // Hilfe

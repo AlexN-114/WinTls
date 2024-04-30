@@ -38,6 +38,7 @@ typedef enum Command
 //** Prototypen ***********************************/
 int StrInStr(char *sub, char *str);
 int RegEx(char *sub, char *str);
+void SetTop(HWND hWnd);
 int FindWindowText(char *suche);
 int WindowMove(HWND hwnd);
 int DoKommand(HWND hWnd, enum Command cmd);
@@ -80,7 +81,7 @@ void help(void)
         "    -vx  ... Fenster verstecken x=v/z\n"
         "    -k#  ... Sende Command #/IDOK\n"
         "    -m#/#... Fenster bewegen posX/PosY\n"
-        "    -l-  ... Fenster TopMost Level setzen/rÅcksetzen\n"
+        "    -l-  ... Fenster TopMost Level setzen/r?cksetzen\n"
         "    -c-  ... Fenster-Klasse anzeigen\n"
         "    -?   ... Hilfe\n"
         "%%ERRORLEVEL%% ist Anzahl Treffer\n";
@@ -122,11 +123,14 @@ int RegEx(char *sub, char *str)
 
 /* Setze Fenster Top-Most-Status
 */
-void SetTop(HWND hWnd, int top)
+void SetTop(HWND hWnd)
 {
-    if (0 != top)
+    printf("SetTop: hWnd=%08X\n",hWnd);
+    if (0 != tm_level)
     {
         SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+        //Sleep(500);
+        //SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
     }
     else
     {
@@ -170,7 +174,8 @@ int DoKommand(HWND hWnd, enum Command cmd)
             break;
         case TopMost:
             // Fenster TopMost Level
-            SetTop(hWnd, tm_level);
+            SetTop(hWnd);
+            return 0;
             break;
         default:
             //Nix
@@ -336,6 +341,7 @@ int main(int argc, char *argv[])
                     break;
                 case 'l':
                     // TopMost Level
+                    CmD = TopMost;
                     tm_level = argv[i][2] != '-';
                     action = "reset TopMost";
                     action = (tm_level) ? &action[2] : action;

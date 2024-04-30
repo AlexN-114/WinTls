@@ -59,8 +59,8 @@ RealEncoding = ASCII
 [VersionInfo]
 Major = 1
 Minor = 0
-Release = 0
-Build = 21
+Release = 1
+Build = 22
 LanguageID = 3079
 CharsetID = 1252
 CompanyName = //-\\. //\\//. - Software
@@ -86,7 +86,7 @@ Priority = 1000
 OverrideBuildCmd = 0
 BuildCmd = 
 FileEncoding = PROJECT
-RealEncoding = windows-1250
+RealEncoding = ASCII
 
 
 [CompilerSettings]

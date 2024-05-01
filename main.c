@@ -13,6 +13,7 @@
  * 25.04.2024 *  aN * .19 * Action angeseigt
  * 29.04.2024 *  aN * .21 * TopMost_Level setzen/rücksetzen
  * 01.05.2024 *  aN * .23 * ignore auch anzeigen, Resource in eigene Datei
+ * 01.05.2024 *  aN * .24 * Hilfe-Text in Resource ausgelagert
  ****************************************************/
 
 #include <windows.h>
@@ -21,8 +22,10 @@
 
 #include "..\\tiny-regex-c\\re.h"
 
+#include "WndTls.h"
+
 //** Enum *****************************************/
-typedef enum Key {xNK, xSHIFT, xCTRL, xALT} xKey ;
+//typedef enum Key {xNK, xSHIFT, xCTRL, xALT} xKey ;
 
 typedef enum Command
 {
@@ -72,20 +75,12 @@ char titel[500];
 */
 void help(void)
 {
+    HMODULE hModule;
     static int showwn = 0;
-    static char text[] =
-        "Verwendung:\nWndTls [[-r][-t][-i][-k#][-m#/#][-c][-?] <SuchText>]...\n"
-        "    -r   ... regular Expression\n"
-        "    -t   ... Text direkt\n"
-        "    -i   ... ignoriere Groá-/Kleinschreibung\n"
-        "    -s   ... Fenster schlieáen\n"
-        "    -vx  ... Fenster verstecken x=v/z\n"
-        "    -k#  ... Sende Command #/IDOK\n"
-        "    -m#/#... Fenster bewegen posX/PosY\n"
-        "    -l-  ... Fenster TopMost Level setzen/r?cksetzen\n"
-        "    -c-  ... Fenster-Klasse anzeigen\n"
-        "    -?   ... Hilfe\n"
-        "%%ERRORLEVEL%% ist Anzahl Treffer\n";
+    static char text[2000];
+    
+    hModule = (HMODULE)GetModuleHandle(NULL);
+    LoadString(hModule, IDS_HELP, text, sizeof(text));
 
     if ('/' == strzchn)
     {
@@ -176,7 +171,7 @@ int DoKommand(HWND hWnd, enum Command cmd)
         case TopMost:
             // Fenster TopMost Level
             SetTop(hWnd);
-            return 0;
+            return 1;
             break;
         default:
             //Nix
@@ -233,10 +228,10 @@ int FindWindowText(char *txt)
                 {
                     printf("gefunden: %s\n", hStr);
                 }
-
-                DoKommand(hwnd, CmD);
-
+                
                 treffer++;
+
+                if (0 != DoKommand(hwnd, CmD)) break;
             }
         }
         else

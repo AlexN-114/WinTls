@@ -1,7 +1,7 @@
 [Project]
 filename = WndTls.gcc32.dev
 name = WndTls
-UnitCount = 2
+UnitCount = 4
 Type = 1
 Ver = 3
 Includes = 
@@ -29,7 +29,7 @@ UsePrecompiledHeader = 0
 PrecompiledHeader = 
 CommandLine = 
 Folders = 
-IncludeVersionInfo = 1
+IncludeVersionInfo = 0
 SupportXPThemes = 0
 CompilerSet = 0
 StaticLink = 0
@@ -44,7 +44,7 @@ UseUTF8 = 0
 
 
 [Unit1]
-FileName = main.c
+FileName = ../tiny-regex-c/re.c
 CompileCpp = 0
 Folder = Sources
 Compile = 1
@@ -53,7 +53,7 @@ Priority = 1000
 OverrideBuildCmd = 0
 BuildCmd = 
 FileEncoding = PROJECT
-RealEncoding = windows-1250
+RealEncoding = ASCII
 
 
 [VersionInfo]
@@ -77,7 +77,33 @@ SyncProduct = 1
 
 
 [Unit2]
-FileName = ../tiny-regex-c/re.c
+FileName = WndTls.rc
+CompileCpp = 0
+Folder = Resources
+Compile = 1
+Link = 0
+Priority = 1000
+OverrideBuildCmd = 0
+BuildCmd = 
+FileEncoding = PROJECT
+RealEncoding = 
+
+
+[Unit3]
+FileName = WndTls.h
+CompileCpp = 0
+Folder = Headers
+Compile = 0
+Link = 0
+Priority = 1000
+OverrideBuildCmd = 0
+BuildCmd = 
+FileEncoding = PROJECT
+RealEncoding = 
+
+
+[Unit4]
+FileName = main.c
 CompileCpp = 0
 Folder = Sources
 Compile = 1
@@ -86,7 +112,7 @@ Priority = 1000
 OverrideBuildCmd = 0
 BuildCmd = 
 FileEncoding = PROJECT
-RealEncoding = ASCII
+RealEncoding = windows-1250
 
 
 [CompilerSettings]

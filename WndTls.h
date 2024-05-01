@@ -20,4 +20,7 @@
 #define PRODUCT_NAME	"Window Tools"
 #define PRODUCT_VERSION	"1.0.1.23"
 
+#define IDI_MAIN        100
+
+#define IDS_HELP       1000
 #endif /*WndTls_private_rc*/

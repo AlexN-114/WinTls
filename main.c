@@ -12,6 +12,7 @@
  * 24.04.2024 *  aN * .18 * selbstanpassender Hilfetext
  * 25.04.2024 *  aN * .19 * Action angeseigt
  * 29.04.2024 *  aN * .21 * TopMost_Level setzen/rücksetzen
+ * 01.05.2024 *  aN * .23 * ignore auch anzeigen, Resource in eigene Datei
  ****************************************************/
 
 #include <windows.h>
@@ -195,8 +196,10 @@ int FindWindowText(char *txt)
     static char hStr[500];
     static char vg_suche[500];
     static char vg_titel[500];
+    
+    sprintf(hStr,"%s%s",wie,ignore_case?",ignore":"");
 
-    printf("%s (%s): %s\n", action, wie, txt);
+    printf("%s (%s): %s\n", action, hStr, txt);
 
     strcpy(vg_suche, txt);
     if (ignore_case)

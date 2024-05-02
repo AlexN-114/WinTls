@@ -77,19 +77,6 @@ SyncProduct = 1
 
 
 [Unit2]
-FileName = WndTls.rc
-CompileCpp = 0
-Folder = Resources
-Compile = 1
-Link = 0
-Priority = 1000
-OverrideBuildCmd = 0
-BuildCmd = 
-FileEncoding = PROJECT
-RealEncoding = 
-
-
-[Unit3]
 FileName = WndTls.h
 CompileCpp = 0
 Folder = Headers
@@ -99,10 +86,10 @@ Priority = 1000
 OverrideBuildCmd = 0
 BuildCmd = 
 FileEncoding = PROJECT
-RealEncoding = 
+RealEncoding = ASCII
 
 
-[Unit4]
+[Unit3]
 FileName = main.c
 CompileCpp = 0
 Folder = Sources
@@ -113,6 +100,19 @@ OverrideBuildCmd = 0
 BuildCmd = 
 FileEncoding = PROJECT
 RealEncoding = windows-1250
+
+
+[Unit4]
+FileName = WndTls.rc
+CompileCpp = 0
+Folder = Resources
+Compile = 1
+Link = 0
+Priority = 1000
+OverrideBuildCmd = 0
+BuildCmd = 
+FileEncoding = PROJECT
+RealEncoding = ASCII
 
 
 [CompilerSettings]

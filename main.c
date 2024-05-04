@@ -14,6 +14,7 @@
  * 29.04.2024 *  aN * .21 * TopMost_Level setzen/rücksetzen
  * 01.05.2024 *  aN * .23 * ignore auch anzeigen, Resource in eigene Datei
  * 01.05.2024 *  aN * .24 * Hilfe-Text in Resource ausgelagert
+ * 04.05.2024 *  aN * .25 * Version anzeigen
  ****************************************************/
 
 #include <windows.h>
@@ -40,6 +41,7 @@ typedef enum Command
 //** Types ****************************************/
 
 //** Prototypen ***********************************/
+char* GetVersionString(char *szVersion, int size);
 int StrInStr(char *sub, char *str);
 int RegEx(char *sub, char *str);
 void SetTop(HWND hWnd);
@@ -71,6 +73,28 @@ char titel[500];
 
 //*************************************************/
 
+char* GetVersionString(char *szVersion, int size)
+{
+    HMODULE hModule;
+    char fname[201];
+    int vis;
+    void *vi;
+    void *version;
+    unsigned iv = sizeof(version);
+    
+    hModule = (HMODULE)GetModuleHandle(NULL);
+    GetModuleFileName(hModule, fname, 200);
+    vis = GetFileVersionInfoSize(fname, NULL);
+    if (vis)
+    {
+        vi = malloc(vis);
+        GetFileVersionInfo(fname, 0, vis, vi);
+        VerQueryValue(vi, "\\StringFileInfo\\0C0704B0\\ProductVersion", &version, &iv);
+    }
+    snprintf(szVersion, size, "%s", (char*)version);
+    return szVersion;
+}
+
 /* Hilfe
 */
 void help(void)
@@ -78,6 +102,7 @@ void help(void)
     HMODULE hModule;
     static int showwn = 0;
     static char text[2000];
+    static char vers[100];
     
     hModule = (HMODULE)GetModuleHandle(NULL);
     LoadString(hModule, IDS_HELP, text, sizeof(text));
@@ -96,6 +121,7 @@ void help(void)
     if (0 == showwn)
     {
         showwn = 1;
+        printf("Window Tools (WndTls) Version: %s\n",GetVersionString(vers, sizeof(vers)));
         printf("%s", text);
     }
 }
@@ -121,7 +147,7 @@ int RegEx(char *sub, char *str)
 */
 void SetTop(HWND hWnd)
 {
-    printf("SetTop: hWnd=%08X\n",hWnd);
+    printf("SetTop: hWnd=%08X\n", hWnd);
     if (0 != tm_level)
     {
         SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);

@@ -1,4 +1,4 @@
-/***************************************************
+/****************************************************
  *  Programm zum Senden von IDOK an alle Fenster,   *
  *  die einen angegebenen Text entalten             *
  ****************************************************
@@ -10,11 +10,12 @@
  * 23.04.2024 *  aN * .16 * selbststellendes Steuerzeichen
  * 24.04.2024 *  aN * .17 * Hilfe in eigener Funktion
  * 24.04.2024 *  aN * .18 * selbstanpassender Hilfetext
- * 25.04.2024 *  aN * .19 * Action angeseigt
+ * 25.04.2024 *  aN * .19 * Action angezeigt
  * 29.04.2024 *  aN * .21 * TopMost_Level setzen/rücksetzen
  * 01.05.2024 *  aN * .23 * ignore auch anzeigen, Resource in eigene Datei
  * 01.05.2024 *  aN * .24 * Hilfe-Text in Resource ausgelagert
  * 04.05.2024 *  aN * .25 * Version anzeigen
+ * 05.05.2024 *  aN * .26 * Version nur auf Extraparameter zu Hilfe 
  ****************************************************/
 
 #include <windows.h>
@@ -64,6 +65,7 @@ int ignore_case = 0;
 int cmd_id = IDOK;
 int show_hide = SW_SHOW;
 int show_class = 0;
+int show_version = 0;
 int tm_level = 1;
 char strzchn = ' ';
 int wndX;
@@ -121,7 +123,10 @@ void help(void)
     if (0 == showwn)
     {
         showwn = 1;
-        printf("Window Tools (WndTls) Version: %s\n",GetVersionString(vers, sizeof(vers)));
+        if(show_version != 0)
+        {
+            printf("Window Tools (WndTls) Version: %s\n",GetVersionString(vers, sizeof(vers)));
+        }
         printf("%s", text);
     }
 }
@@ -372,6 +377,10 @@ int main(int argc, char *argv[])
                     break;
                 case '?':
                     // Hilfe
+                    if(argv[i][2]=='?')
+                    {
+                        show_version = 1; 
+                    }
                     help();
                     srch = (char*)1;
                     break;

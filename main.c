@@ -15,7 +15,9 @@
  * 01.05.2024 *  aN * .23 * ignore auch anzeigen, Resource in eigene Datei
  * 01.05.2024 *  aN * .24 * Hilfe-Text in Resource ausgelagert
  * 04.05.2024 *  aN * .25 * Version anzeigen
- * 05.05.2024 *  aN * .26 * Version nur auf Extraparameter zu Hilfe 
+ * 05.05.2024 *  aN * .26 * Version nur auf Extraparameter zu Hilfe
+ * 30.05.2024 *  aN * .27 * Window Handle anzeigen
+ * 31.05.2024 *  aN * .28 * PIDs anzeigen
  ****************************************************/
 
 #include <windows.h>
@@ -65,6 +67,8 @@ int ignore_case = 0;
 int cmd_id = IDOK;
 int show_hide = SW_SHOW;
 int show_class = 0;
+int show_handle = 0;
+int show_pid = 0;
 int show_version = 0;
 int tm_level = 1;
 char strzchn = ' ';
@@ -83,7 +87,7 @@ char* GetVersionString(char *szVersion, int size)
     void *vi;
     void *version;
     unsigned iv = sizeof(version);
-    
+
     hModule = (HMODULE)GetModuleHandle(NULL);
     GetModuleFileName(hModule, fname, 200);
     vis = GetFileVersionInfoSize(fname, NULL);
@@ -105,7 +109,7 @@ void help(void)
     static int showwn = 0;
     static char text[2000];
     static char vers[100];
-    
+
     hModule = (HMODULE)GetModuleHandle(NULL);
     LoadString(hModule, IDS_HELP, text, sizeof(text));
 
@@ -123,9 +127,9 @@ void help(void)
     if (0 == showwn)
     {
         showwn = 1;
-        if(show_version != 0)
+        if (show_version != 0)
         {
-            printf("Window Tools (WndTls) Version: %s\n",GetVersionString(vers, sizeof(vers)));
+            printf("Window Tools (WndTls) Version: %s\n", GetVersionString(vers, sizeof(vers)));
         }
         printf("%s", text);
     }
@@ -218,12 +222,16 @@ int FindWindowText(char *txt)
 {
     HWND hwnd;
     int treffer = 0;
-    static char class[100];
+    static char class[200];
     static char hStr[500];
     static char vg_suche[500];
     static char vg_titel[500];
-    
-    sprintf(hStr,"%s%s",wie,ignore_case?",ignore":"");
+
+    class[0] = 0;
+    vg_suche[0] = 0;
+    vg_titel[0] = 0;
+
+    sprintf(hStr, "%s%s", wie, ignore_case ? ",ignore" : "");
 
     printf("%s (%s): %s\n", action, hStr, txt);
 
@@ -235,8 +243,9 @@ int FindWindowText(char *txt)
 
     hwnd = FindWindow(NULL, NULL);
 
-    while (hwnd != NULL)
+    do
     {
+        class[0] = 0;
         // - Fenster auswerten
         GetWindowText(hwnd, hStr, sizeof(hStr));
 
@@ -250,16 +259,37 @@ int FindWindowText(char *txt)
         {
             if ((*compare)(vg_titel, vg_suche) != 0)
             {
-                GetClassName(hwnd, class, sizeof(class));
                 if (show_class != 0)
                 {
-                    printf("gefunden:(%s) %s\n", class, hStr);
+                    GetClassName(hwnd, class, sizeof(class));
+                }
+                if (show_handle != 0)
+                {
+                    if (strlen(class) > 0)
+                    {
+                        strcat(class, ",");
+                    }
+                    sprintf(class, "%s%ld", class, hwnd);
+                }
+                if (show_pid != 0)
+                {
+                    DWORD p, pp;
+                    if (strlen(class) > 0)
+                    {
+                        strcat(class, ",");
+                    }
+                    p = GetWindowThreadProcessId(hwnd, &pp);
+                    sprintf(class, "%s[%u/%u]", class, p, pp);
+                }
+                if (strlen(class) > 0)
+                {
+                    printf("gefunden: (%s) %s\n", class, hStr);
                 }
                 else
                 {
                     printf("gefunden: %s\n", hStr);
                 }
-                
+
                 treffer++;
 
                 if (0 != DoKommand(hwnd, CmD)) break;
@@ -270,7 +300,9 @@ int FindWindowText(char *txt)
             // printf("geigenes Fenster: %s\n", hStr);
         }
         hwnd = GetWindow(hwnd, GW_HWNDNEXT);
+
     }
+    while (hwnd != NULL);
 
     printf("Treffer: %d\n", treffer);
 
@@ -368,6 +400,14 @@ int main(int argc, char *argv[])
                     // Zeige Klasse
                     show_class = argv[i][2] != '-';
                     break;
+                case 'h':
+                    // Zeige Handle
+                    show_handle = argv[i][2] != '-';
+                    break;
+                case 'p':
+                    // Zeige Handle
+                    show_pid = argv[i][2] != '-';
+                    break;
                 case 'l':
                     // TopMost Level
                     CmD = TopMost;
@@ -377,9 +417,9 @@ int main(int argc, char *argv[])
                     break;
                 case '?':
                     // Hilfe
-                    if(argv[i][2]=='?')
+                    if (argv[i][2] == '?')
                     {
-                        show_version = 1; 
+                        show_version = 1;
                     }
                     help();
                     srch = (char*)1;

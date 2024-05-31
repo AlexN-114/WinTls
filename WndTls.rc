@@ -11,8 +11,8 @@ IDI_MAIN   ICON "app.ico"
 // TO CHANGE VERSION INFORMATION, EDIT PROJECT OPTIONS...
 //
 1 VERSIONINFO
-FILEVERSION 1,0,2,26
-PRODUCTVERSION 1,0,2,26
+FILEVERSION 1,0,3,28
+PRODUCTVERSION 1,0,3,28
 FILETYPE VFT_APP
 {
   BLOCK "StringFileInfo"
@@ -20,14 +20,14 @@ FILETYPE VFT_APP
     BLOCK "0c0704b0"
     {
       VALUE "CompanyName", "//-\\. //\\//. - Software"
-      VALUE "FileVersion", "1.0.2.26"
+      VALUE "FileVersion", "1.0.3.28"
       VALUE "FileDescription", "Tool zum Manipulieren von Fenstern"
       VALUE "InternalName", ""
       VALUE "LegalCopyright", "Alexander NEUMEISTER ® 2024"
       VALUE "LegalTrademarks", ""
       VALUE "OriginalFilename", "WndTls.exe"
       VALUE "ProductName", "Window Tools"
-      VALUE "ProductVersion", "1.0.2.26"
+      VALUE "ProductVersion", "1.0.3.28"
     }
   }
   BLOCK "VarFileInfo"
@@ -39,7 +39,7 @@ FILETYPE VFT_APP
 STRINGTABLE
 {
     IDS_HELP,
-    "Verwendung:\nWndTls [[-r][-t][-i[-]][-k#][-m#/#][-l[-]][-c[-]][-?[?]] <SuchText>]...\n"
+    "Verwendung:\nWndTls [[-r][-t][-i[-]][-k#][-m#/#][-l[-]][-c[-]][-h[-]][-p[-]][-?[?]] <SuchText>]...\n"
     "    -r   ... regular Expression\n"
     "    -t   ... Text direkt\n"
     "    -i-  ... ignoriere Groá-/Kleinschreibung\n"
@@ -49,6 +49,8 @@ STRINGTABLE
     "    -m#/#... Fenster bewegen posX/PosY\n"
     "    -l-  ... Fenster TopMost Level setzen/r?cksetzen\n"
     "    -c-  ... Fenster-Klasse anzeigen\n"
+    "    -h-  ... Fenster-Handle anzeigen\n"
+    "    -p-  ... PID (wnd/parent) anzeigen\n"
     "    -??  ... Hilfe (+Version)\n"
     "%%ERRORLEVEL%% ist Anzahl Treffer\n"
 }

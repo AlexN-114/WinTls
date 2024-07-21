@@ -31,8 +31,8 @@ CommandLine =
 Folders = 
 IncludeVersionInfo = 0
 SupportXPThemes = 0
-CompilerSet = 0
-StaticLink = 0
+CompilerSet = 6
+StaticLink = 1
 AddCharset = 1
 ExecEncoding = windows-1250
 Encoding = windows-1250
@@ -44,11 +44,11 @@ UseUTF8 = 0
 
 
 [Unit1]
-FileName = ../tiny-regex-c/re.c
+FileName = WndTls.rc
 CompileCpp = 0
-Folder = Sources
+Folder = Resources
 Compile = 1
-Link = 1
+Link = 0
 Priority = 1000
 OverrideBuildCmd = 0
 BuildCmd = 
@@ -77,19 +77,6 @@ SyncProduct = 1
 
 
 [Unit2]
-FileName = WndTls.h
-CompileCpp = 0
-Folder = Headers
-Compile = 0
-Link = 0
-Priority = 1000
-OverrideBuildCmd = 0
-BuildCmd = 
-FileEncoding = PROJECT
-RealEncoding = ASCII
-
-
-[Unit3]
 FileName = main.c
 CompileCpp = 0
 Folder = Sources
@@ -102,11 +89,11 @@ FileEncoding = PROJECT
 RealEncoding = ASCII
 
 
-[Unit4]
-FileName = WndTls.rc
+[Unit3]
+FileName = WndTls.h
 CompileCpp = 0
-Folder = Resources
-Compile = 1
+Folder = Headers
+Compile = 0
 Link = 0
 Priority = 1000
 OverrideBuildCmd = 0
@@ -115,7 +102,22 @@ FileEncoding = PROJECT
 RealEncoding = ASCII
 
 
+[Unit4]
+FileName = ../tiny-regex-c/re.c
+CompileCpp = 0
+Folder = Sources
+Compile = 1
+Link = 1
+Priority = 1000
+OverrideBuildCmd = 0
+BuildCmd = 
+FileEncoding = PROJECT
+RealEncoding = ASCII
+
+
 [CompilerSettings]
-cc_cmd_opt_optimize = s
+c_cmd_opt_std = 
+cc_cmd_opt_optimize = 2
 cc_cmd_opt_std = 
+cc_cmd_opt_use_pipe = on
 link_cmd_opt_strip_exe = on

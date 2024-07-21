@@ -269,7 +269,14 @@ int FindWindowText(char *txt)
                     {
                         strcat(class, ",");
                     }
-                    sprintf(class, "%s%ld", class, hwnd);
+                    if (show_handle == 2)        // 2 means show as hex
+                    {
+                        sprintf(class, "%s%lX", class, hwnd);
+                    }
+                    else
+                    {
+                        sprintf(class, "%s%ld", class, hwnd);
+                    }
                 }
                 if (show_pid != 0)
                 {
@@ -279,7 +286,14 @@ int FindWindowText(char *txt)
                         strcat(class, ",");
                     }
                     p = GetWindowThreadProcessId(hwnd, &pp);
-                    sprintf(class, "%s[%u/%u]", class, p, pp);
+                    if (show_pid == 2)
+                    {
+                        sprintf(class, "%s[%x/%x]", class, p, pp);
+                    }
+                    else
+                    {
+                        sprintf(class, "%s[%u/%u]", class, p, pp);
+                    }
                 }
                 if (strlen(class) > 0)
                 {
@@ -402,11 +416,13 @@ int main(int argc, char *argv[])
                     break;
                 case 'h':
                     // Zeige Handle
-                    show_handle = argv[i][2] != '-';
+                    show_handle = (argv[i][2] != '-')?1:0;
+                    if (argv[i][2] =='x') show_handle = 2;
                     break;
                 case 'p':
                     // Zeige Handle
-                    show_pid = argv[i][2] != '-';
+                    show_pid = (argv[i][2] != '-')?1:0;
+                    if (argv[i][2] =='x') show_pid = 2;
                     break;
                 case 'l':
                     // TopMost Level
